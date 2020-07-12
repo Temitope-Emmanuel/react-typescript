@@ -31,7 +31,6 @@ const RoutesWrap:React.SFC = () => {
         }
 
         render(){
-            console.log(this.props)
             return(
                 <div>
                     <Header/>
