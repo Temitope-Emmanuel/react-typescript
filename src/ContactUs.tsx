@@ -1,12 +1,19 @@
 import * as React from "react"
-import Form from "./Form"
+import Form,{minLength,required} from "./Form"
 
 
-const ContactUs:React.SFC = (props) => {
+const ContactUs:React.SFC = () => {
     return(
         <Form defaultValue={{
             name:"",email:"",reason:"Support",notes:""
-        }}>
+        }}
+        validationRules={{
+            email:{validator:required},
+            // notes:{validator:required},
+            // reason:{validator:required},
+            name:[{validator:required},{validator:minLength,args:2}]
+        }}
+        >
             <Form.Field name="name" label="Your name" />
             <Form.Field name="email" label="Your Email Address" type="Email" />
             <Form.Field name="reason" label="Reason You Need To Contact Us"
