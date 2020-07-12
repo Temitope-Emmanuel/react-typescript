@@ -4,12 +4,30 @@ export interface IValues {
     [key:string]:any;
 }
 
+export interface ISubmitResult {
+    success:boolean;
+    errors?:IErrors;
+}
+export const required : Validator = (fieldName:string,values:IValues):
+   string => (
+     values[fieldName] === undefined || values[fieldName] === null || 
+     values[fieldName] === "" ?  "This must be populated" : ""
+);
+export const minLength : Validator = (fieldName:string,values:IValues,
+    length:number ):string => (
+        values[fieldName] && values[fieldName].length < length
+        ? `This must be at least ${length} character` : ""
+);
+
+interface IErrors {
+    [key:string]:string[];
+}
+
 type Validator = (
     fieldName:string,
     values:IValues,
     args?:any
 ) => string
-
 interface IValidation {
     validator:Validator;
     args?:any
@@ -21,32 +39,20 @@ interface IValidationProp {
 interface IFormProps{
     defaultValue:IValues;
     validationRules:IValidationProp;
+    onSubmit : (values:IValues) => Promise<ISubmitResult>
 }
-
-interface IErrors {
-    [key:string]:string[];
+interface IState {
+    values:IValues;
+    errors:IErrors;
+    submitting:boolean;
+    submitted:boolean;
 }
-
-export const required : Validator = (
-    fieldName:string,values:IValues,args?:any):string => (
-     values[fieldName] === undefined || values[fieldName] === null || 
-     values[fieldName] === "" ?  "This must be populated" : "");
-
-export const minLength : Validator = (fieldName:string,
-    values:IValues,length:number ):string => (
-        values[fieldName] && values[fieldName].length < length
-        ? `This must be at least ${length} character` : "");
-
+        
 interface IFieldProps {
     name:string;
     label:string;
     type?:"Text" | "Email" | "Select" | "TextArea";
     options?:string[]
-}
-
-interface IState {
-    values:IValues;
-    errors:IErrors
 }
 interface IFormContext {
     errors:IErrors;
@@ -54,7 +60,6 @@ interface IFormContext {
     setValue?:(fieldName:string,value:any) => void;
     validate?:(fieldName:string,value:any) => string[]
 }
-
 const FormContext = React.createContext<IFormContext>({
     values:{},
     errors:{}
@@ -69,7 +74,9 @@ export class Form extends React.Component<IFormProps,IState>{
         })
         this.state = {
             values:props.defaultValue,
-            errors
+            errors,
+            submitted:false,
+            submitting:false
         };
     }
     public static Field:React.SFC<IFieldProps> = props => {
@@ -89,6 +96,7 @@ export class Form extends React.Component<IFormProps,IState>{
                     context.validate(props.name,e.currentTarget.value)
                 }
             }
+
         return(
             <FormContext.Consumer>
                 {context => (
@@ -157,6 +165,45 @@ export class Form extends React.Component<IFormProps,IState>{
         this.setState({errors:newErrors})
         return errors
     }
+    private isValidForSubmit():boolean {
+        const errors:IErrors = {};
+        let hasError:boolean = true;
+        Object.keys(this.props.defaultValue).map(fieldName => {
+            errors[fieldName] = this.validate(
+                fieldName,this.state.values[fieldName]
+            );
+            if(errors[fieldName].length > 0){
+                hasError =  false;
+                this.setState({errors})
+            }
+        })
+        return hasError
+    }
+
+    private handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        if(this.isValidForSubmit()){
+            this.setState({submitting:true})
+            const result = await this.props.onSubmit(this.state.values)
+            this.setState({
+                errors:result.errors || {},
+                submitted:result.success,
+                submitting:false
+            },() => {
+                if(this.state.submitted){
+                    const values = Object.keys(this.state.values).reduce((a,b) => {
+                        a[b] = ""
+                        return {...a}
+                    },{})
+                    this.setState({
+                        values:values
+                    })
+                }
+            })
+        }else{
+            alert("Please Clear All Errors")
+        }
+    }
 
     public render(){
         const context:IFormContext = {
@@ -165,11 +212,14 @@ export class Form extends React.Component<IFormProps,IState>{
             errors:this.state.errors,
             validate:this.validate
         }
-        console.log(this.state.values)
         return(
             <FormContext.Provider value={context}>
-                <form className="form" noValidate={true}>
+                <form onSubmit={this.handleSubmit} className="form" noValidate={true}>
                     {this.props.children}
+                    <div className="form-group">
+                        <button disabled={this.state.submitting || this.state.submitted} 
+                         type="submit">Submit</button>
+                    </div>
                 </form>
             </FormContext.Provider>
             )
