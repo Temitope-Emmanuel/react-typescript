@@ -6,6 +6,7 @@ import Header from "./Header"
 import ProductsPage from './ProductsPage'
 import ProductPage from "./ProductPage"
 import LoginPage from "./LoginPage"
+import ContactUsPage from "./ContactUsPage"
 import "./index"
 const AdminPage = React.lazy(() => import ("./AdminPage"))
 
@@ -42,6 +43,7 @@ const RoutesWrap:React.SFC = () => {
                         <Switch>
                         <Route exact path="/products"
                          component={ProductsPage}/>
+                         <Route path="/contactus" component={ContactUsPage} />
                         <Route path="/admin"
                          component={AdminPage}>
                             {this.state.loggedIn ? 
