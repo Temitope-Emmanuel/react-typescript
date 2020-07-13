@@ -1,6 +1,6 @@
 import * as React from "react";
 import {RouteComponentProps,Prompt} from 'react-router-dom'
-import {IProduct,getProduct,products} from "./ProductsData"
+import {IProduct,getProduct} from "./ProductsData"
 import Product from "./Product"
 
 type Props = RouteComponentProps<{id:string}>;

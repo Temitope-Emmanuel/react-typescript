@@ -13,10 +13,7 @@ interface IState {
 
 
 class ContactUsPage extends React.Component<{},IState>{
-    constructor(props:{}){
-        super(props)
-       }
-
+    
        private handleSubmit = async (values:IValues):Promise<ISubmitResult> => {
            await wait(1000)
            return{

@@ -4,6 +4,12 @@ export const getProduct = async (id:number) :Promise<IProduct | null> => {
     const foundProducts = products.filter(customer => customer.id === id)
     return foundProducts.length === 0 ? null  : foundProducts[0]
 }
+
+export const getAsyncProduct = async (): Promise<IProduct[]> => {
+    await(1000);
+    return products;
+}
+
 export const wait = (ms:number): Promise<void> => {
     return new Promise(resolve => setTimeout(resolve,ms))
 }

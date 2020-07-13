@@ -1,45 +1,29 @@
 import * as React from "react"
-import {IProduct,products} from "./ProductsData"
+import {IProduct} from "./ProductsData"
 import {Link} from "react-router-dom"
 import {RouteComponentProps} from "react-router-dom"
 import "url-search-params-polyfill"
 
+import {connect} from "react-redux"
+import {IApplicationState} from "./Store"
+import {getProducts} from "./ProductsAction"
 
-
-interface IState {
-    products:IProduct[];
-    search:string;
+interface IProps extends RouteComponentProps { 
+    getProducts:typeof getProducts;
+    loading:boolean;
+    products:IProduct[]
 }
 
-class ProductsPage extends React.Component<RouteComponentProps,IState> {
-    public constructor(props:RouteComponentProps){
-        super(props);
-        this.state = {
-            products:[],
-            search:""
-        };
-    }
-
+class ProductsPage extends React.Component<IProps> {
+    
     public componentDidMount(){
-        this.setState({
-            products
-        })
-    }
-
-    public static getDerivedStateFromProps(
-        props:RouteComponentProps,
-        state:IState
-    ){
-        const searchParams = new URLSearchParams(props.location.search);
-        console.log(searchParams)
-        const search = searchParams.get("search") || "";
-        return {
-            products:state.products,
-            search
-        }
+        this.props.getProducts()
     }
 
     public render(){
+         const searchParams = new URLSearchParams(this.props.location.search)
+         const search = searchParams.get("search") || ""
+
         return (
             <div className="page-container">
             <p>
@@ -47,12 +31,11 @@ class ProductsPage extends React.Component<RouteComponentProps,IState> {
             for ReactJS!
             </p>
             <ul className="product-list">
-            {this.state.products.map(product => {
+            {this.props.products.map(product => {
                 if (
-                    !this.state.search ||
-                    (this.state.search &&
+                    !search || (search &&
                     product.name.toLowerCase()
-                    .indexOf(this.state.search.toLowerCase()) > -1)
+                    .indexOf(search.toLowerCase()) > -1)
                     ) {
                     return (
                          <li key={product.id} className="product-list-item">
@@ -70,4 +53,16 @@ class ProductsPage extends React.Component<RouteComponentProps,IState> {
     }
 }
 
-export default ProductsPage
+const mapStateToProps = (store :IApplicationState) => {
+    return {
+        loading:store.products.productsLoading,
+        products:store.products.products
+    }
+}
+const mapDispatchToProps = (dispatch:any) => {
+    return {
+        getProducts : () => dispatch(getProducts())
+    }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(ProductsPage);
