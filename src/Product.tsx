@@ -27,7 +27,6 @@ const Product:React.SFC<IProps> = (props) => {
                  heading={() => <b>Description</b>}>
                      <p>{product.description}</p>
                  </Tabs.Tab>
-
                 <Tabs.Tab name="Review"
                  heading={() => "Reviews"}
                 >

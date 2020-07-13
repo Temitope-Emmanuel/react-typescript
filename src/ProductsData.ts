@@ -1,4 +1,3 @@
-
 export const getProduct = async (id:number) :Promise<IProduct | null> => {
     await wait(1000)
     const foundProducts = products.filter(customer => customer.id === id)

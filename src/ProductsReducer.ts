@@ -4,7 +4,8 @@ import {IProductState,ProductsAction,
 
 const initialProductState:IProductState = {
     products:[],
-    productsLoading:false
+    productsLoading:false,
+    currentProduct:null
 }
 
 export const productsReducer:Reducer<IProductState,
@@ -20,6 +21,12 @@ export const productsReducer:Reducer<IProductState,
                         return {
                             ...state,
                             products:action.products,
+                            productsLoading:false
+                        }
+                    case ProductsActionTypes.GETSINGLE:
+                        return {
+                            ...state,
+                            currentProduct:action.product,
                             productsLoading:false
                         }
                     default:

@@ -5,12 +5,17 @@ import thunk from "redux-thunk"
 import {productsReducer} from "./ProductsReducer"
 import {IProductState} from "./ProductsTypes"
 
+import {basketReducer} from "./BasketReducer"
+import {IBasketState} from "./BasketTypes"
+
 export interface IApplicationState {
-    products:IProductState
+    products:IProductState,
+    basket:IBasketState
 }
 
 const rootReducer = combineReducers<IApplicationState>({
-    products:productsReducer
+    products:productsReducer,
+    basket:basketReducer
 })
 
 export default function configureStore():Store<IApplicationState>{
